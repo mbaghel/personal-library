@@ -47,10 +47,15 @@ module.exports = function(app) {
 
     .post(function(req, res) {
       const title = req.body.title;
+      let isTest = false;
+      if (req.body.test) {
+        isTest = true;
+      }
+      const myId = isTest ? ObjectId("507f1f77bcf86cd799439011") : ObjectId();
       if (!title) return res.status(400).send("missing title");
       bookDb
         .collection("books")
-        .insertOne({ title, comments: [] }, (err, r) => {
+        .insertOne({ title, comments: [], _id: myId }, (err, r) => {
           if (err) {
             console.log(err);
             return res.status(500).send("Internal server error");

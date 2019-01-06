@@ -14,39 +14,6 @@ var server = require("../server");
 chai.use(chaiHttp);
 
 suite("Functional Tests", function() {
-  /*
-   * ----[EXAMPLE TEST]----
-   * Each test should completely test the response of the API end-point including response status code!
-   */
-  test("#example Test GET /api/books", function(done) {
-    chai
-      .request(server)
-      .get("/api/books")
-      .end(function(err, res) {
-        assert.equal(res.status, 200);
-        assert.isArray(res.body, "response should be an array");
-        assert.property(
-          res.body[0],
-          "commentcount",
-          "Books in array should contain commentcount"
-        );
-        assert.property(
-          res.body[0],
-          "title",
-          "Books in array should contain title"
-        );
-        assert.property(
-          res.body[0],
-          "_id",
-          "Books in array should contain _id"
-        );
-        done();
-      });
-  });
-
-  /*
-   * ----[END of EXAMPLE TEST]----
-   */
   suite("Routing tests", function() {
     suite(
       "POST /api/books with title => create book object/expect book object",
@@ -55,7 +22,7 @@ suite("Functional Tests", function() {
           chai
             .request(server)
             .post("/api/books")
-            .send({ title: "Post with title" })
+            .send({ title: "Post with title", test: true })
             .end((err, res) => {
               assert.equal(res.status, 200);
               assert.isObject(res.body, "response should be an object");
@@ -74,8 +41,8 @@ suite("Functional Tests", function() {
                 "comments",
                 "response object should contain comments"
               );
+              done();
             });
-          done();
         });
 
         test("Test POST /api/books with no title given", function(done) {
@@ -84,9 +51,9 @@ suite("Functional Tests", function() {
             .post("/api/books")
             .end((err, res) => {
               assert.equal(res.status, 400);
-              assert.equal(res.body, "missing title");
+              assert.equal(res.text, "missing title");
+              done();
             });
-          done();
         });
       }
     );
@@ -116,8 +83,8 @@ suite("Functional Tests", function() {
               "response object should contain comments"
             );
             assert.equal(res.body.title, "Post with title");
+            done();
           });
-        done();
       });
     });
 
@@ -129,14 +96,14 @@ suite("Functional Tests", function() {
           .end((err, res) => {
             assert.equal(res.status, 200);
             assert.equal(res.text, "no book exists");
+            done();
           });
-        done();
       });
 
       test("Test GET /api/books/[id] with valid id in db", function(done) {
         chai
           .request(server)
-          .get(`/api/books/5c31af758024eb275c683a9b`)
+          .get(`/api/books/507f1f77bcf86cd799439011`)
           .end((err, res) => {
             assert.equal(res.status, 200);
             assert.isObject(res.body);
@@ -156,8 +123,8 @@ suite("Functional Tests", function() {
               "response object should contain comments"
             );
             assert.equal(res.body.title, "Post with title");
+            done();
           });
-        done();
       });
     });
 
@@ -167,7 +134,7 @@ suite("Functional Tests", function() {
         test("Test POST /api/books/[id] with comment", function(done) {
           chai
             .request(server)
-            .post(`/api/books/5c31af758024eb275c683a9b`)
+            .post(`/api/books/507f1f77bcf86cd799439011`)
             .send({ comment: "test comment" })
             .end((err, res) => {
               assert.equal(res.status, 200);
@@ -188,10 +155,22 @@ suite("Functional Tests", function() {
                 "response object should contain comments"
               );
               assert.equal(res.body.title, "Post with title");
+              done();
             });
-          done();
         });
       }
     );
+    suite("DELETE /api/books/[id] => expect delete msg", function() {
+      test("Test DELETE /api/books/[id]", function(done) {
+        chai
+          .request(server)
+          .delete(`/api/books/507f1f77bcf86cd799439011`)
+          .end((err, res) => {
+            assert.equal(res.status, 200);
+            assert.equal(res.text, "delete successful");
+            done();
+          });
+      });
+    });
   });
 });
